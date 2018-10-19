@@ -2,16 +2,17 @@
 
 namespace App\Repositories\Eloquents;
 
-class DbBaseRepository {
+class DbBaseRepository
+{
 
     /**
-    * Eloquent model
-    */
+     * Eloquent model
+     */
     protected $model;
 
     /**
-    * @param $model
-    */
+     * @param $model
+     */
     function __construct($model)
     {
         $this->model = $model;
@@ -30,7 +31,7 @@ class DbBaseRepository {
     public function update($data, $key, $value)
     {
         $obj = $this->model->where($key, $value);
-        
+
         return $obj->update($data->toArray());
     }
 
