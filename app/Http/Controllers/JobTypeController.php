@@ -4,9 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\JobType;
 use Illuminate\Http\Request;
+use App\Repositories\Interfaces\JobTypeRepository;
+use App\Http\Requests\CreateJobTypeRequest;
+use App\Http\Requests\UpdateJobTypeRequest;
 
 class JobTypeController extends Controller
 {
+    const PER_PAGE = 5;
+    protected $jobTypeReponsitory;
+
+    public function __construct(JobTypeRepository $jobTypeRepository)
+    {
+        $this->jobTypeReponsitory = $jobTypeRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +25,9 @@ class JobTypeController extends Controller
      */
     public function index()
     {
-        //
+        $jobTypes = $this->jobTypeReponsitory->getListJobType(self::PER_PAGE);
+        
+        return view('admin.job_types.index', compact('jobTypes'));
     }
 
     /**
@@ -24,7 +37,7 @@ class JobTypeController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.job_types.create');
     }
 
     /**
@@ -35,18 +48,14 @@ class JobTypeController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $jobType = $this->jobTypeReponsitory->createJobType($request->all());
+        if ($jobType) {
+            flash('Thêm thành công')->success();
+        } else {
+            flash('Thêm thất bai, Vui lòng thử lại')->error();
+        }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\JobType  $jobType
-     * @return \Illuminate\Http\Response
-     */
-    public function show(JobType $jobType)
-    {
-        //
+        return redirect()->route('job-type.index');
     }
 
     /**
@@ -57,7 +66,9 @@ class JobTypeController extends Controller
      */
     public function edit(JobType $jobType)
     {
-        //
+        $jobType = $this->jobTypeReponsitory->getJobType('id', $id);
+
+        return view('admin.job_types.edit', compact('jobType'));
     }
 
     /**
@@ -69,7 +80,16 @@ class JobTypeController extends Controller
      */
     public function update(Request $request, JobType $jobType)
     {
-        //
+        $jobType = $this->jobTypeReponsitory->updateJobType($request, 'id', $id);
+        if ($jobType) {
+            flash('Sửa thành công')->success();
+
+            return redirect()->route('job-type.index');
+        } else {
+            flash('Sửa thất bại, vui lòng thử lại')->error();
+
+            return redirect()->back();
+        }
     }
 
     /**
@@ -80,6 +100,13 @@ class JobTypeController extends Controller
      */
     public function destroy(JobType $jobType)
     {
-        //
+        $jobType = $this->jobTypeReponsitory->deleteJobType('id', $id);
+        if ($jobType) {
+            flash('Xóa thành công')->success();
+        } else {
+            flash('Xóa thất bại, Vui lòng thử lại!')->error();
+        }
+
+        return redirect()->route('job-type.index');
     }
 }
